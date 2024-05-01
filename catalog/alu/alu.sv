@@ -54,6 +54,7 @@ module ALU #(
                         result = 16'b0;                   // Division by zero, undefined
                         remainder = 16'b0;
                     end
+            4'b1100: result = a + b;                      // ADDI (Use as ADD, b is immediate)
             default: result = 16'b0;                      // Default case
         endcase
         zero = (result == 0);  // Set the zero flag if the result is 0
