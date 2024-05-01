@@ -44,9 +44,8 @@ module ALUDecoder(
                     6'b101010: alucontrol = 4'b0110; // slt
                     6'b000001: alucontrol = 4'b0111; // shift left logical
                     6'b000011: alucontrol = 4'b1000; // shift right logical
-                    6'b000010: alucontrol = 4'b1001; // arithmetic shift right
-                    6'b011000: alucontrol = 4'b1010; // multiply
-                    6'b011010: alucontrol = 4'b1011; // divide
+                    6'b011000: alucontrol = 4'b1001; // multiply
+                    6'b011010: alucontrol = 4'b1010; // divide
                     default:   alucontrol = 4'bxxxx; // Undefined operation
                 endcase
             end

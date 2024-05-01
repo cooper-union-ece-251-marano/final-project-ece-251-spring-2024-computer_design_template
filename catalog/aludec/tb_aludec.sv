@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: YOUR NAMES
+// Engineer: Aidan Cusa & Kristof Jablonowski
 // 
 //     Create Date: 2023-02-07
 //     Module Name: tb_aludec
