@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: tb_sl2
 //     Description: Test bench for shift left by 2 (multiply by 4)
 //
@@ -17,22 +17,21 @@
 `include "sl2.sv"
 
 module tb_sl2;
-    parameter n = 32;
-    logic [(n-1):0] a, y;
+    parameter n = 16;
+    logic [(n-1):0] in, out;
 
-   initial begin
+    initial begin
         $dumpfile("sl2.vcd");
         $dumpvars(0, uut);
-        //$monitor("a = %0b (0x%0h)(%0d) y = %0b (0x%0h)(%0d) ", a, a, a, y, y, y);
-        $monitor("time=%0t \t a=%b y=%b",$realtime, a, y);
+        $monitor("time=%0t \t in=%b out=%b", $realtime, in, out);
     end
 
     initial begin
-        a <= #n'h0000000F;
+        in <= #n'h0000000F;
     end
 
     sl2 uut(
-        .A(a), .Y(y)
+        .in(in), .out(out)
     );
 endmodule
 `endif // TB_SL2

@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: mux2
 //     Description: 2 to 1 multiplexer
 //
@@ -13,21 +13,34 @@
 `ifndef MUX2
 `define MUX2
 
-`timescale 1ns/100ps
+module mux2 # (parameter N = 16)
+   //
+   // ---------------- PORT DEFINITIONS ----------------
+   //
+   (
+      input [15:0] a, b,
+      input sel, enable, // y=a if sel=0; y=b if sel=1
+      output reg [15:0] y,
+      output reg [15:0] temp
+   );
+   //
+   // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
+   //
+always @(*) begin
+    if(enable) begin
+      if (sel == 1'b0)
+        begin
+          temp = a;
+        end
+      else
+        begin
+          temp = b;
+        end
+    y = temp;
+    end
+    else y = 'bz;
+end
 
-module mux2
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic [(n-1):0] D0, D1,
-    input  logic S,
-    output logic [(n-1):0] Y
-);
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-    assign Y = S ? D1 : D0;
 endmodule
 
 `endif // MUX2

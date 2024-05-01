@@ -1,40 +1,52 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: tb_signext
 //     Description: Test bench for sign extender
 //
 // Revision: 1.0
 //
 //////////////////////////////////////////////////////////////////////////////////
-`ifndef TB_SIGNEXT
-`define TB_SIGNEXT
-
 `timescale 1ns/100ps
-`include "signext.sv"
 
-module tb_sl2;
-    parameter n = 32; // #bits for an operand
-    parameter i = n/2; // #bits for an immediate
-    logic [(i-1):0] a;
-    logic [(n-1):0] y;
+`include "./signext.sv"
 
-   initial begin
-        $dumpfile("signext.vcd");
+module tb_signext;
+
+   reg enable;
+   reg [7:0] in;  //inputs are reg for test bench
+   wire [15:0] out;     //outputs are wire for test bench
+
+
+   //
+   // ---------------- INITIALIZE TEST BENCH ----------------
+   //
+
+initial
+     begin
+        $dumpfile("tb_signext.vcd"); // for Makefile, make dump file same as module name
         $dumpvars(0, uut);
-        //$monitor("a = %b (0x%0h)(%0d) y = %b (0x%0h)(%0d) ", a, a, a, y, y, y);
-        $monitor("time=%0t \t a=%b y=%b",$realtime, a, y);
-    end
+      in = 8'b0;
+      enable = 1'b1;
+     end
 
-    initial begin
-        a <= #i'h8000;
-    end
+   //apply input vectors
+   initial
+   begin: apply_stimulus
+     reg[7:0] invect; //invect[7] terminates the for loop
+     for (int i = 0; i < 256; i++)
+      begin
+        invect = i;
+        in = invect;
+     #10 $display("enable=%b, in=%b, out=%b", enable, in, out);
+          end
+   end
+   //
+   // ---------------- INSTANTIATE UNIT UNDER TEST (UUT) ----------------
+   //
+  signext uut(.enable(enable), .in(in), .out(out));
 
-    signext uut(
-        .A(a), .Y(y)
-    );
 endmodule
-`endif // TB_SIGNEXT

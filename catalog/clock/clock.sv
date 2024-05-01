@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: clock
 //     Description: Clock generator; duty cycle = 50%
 //
@@ -12,47 +12,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 `ifndef CLOCK
 `define CLOCK
+`timescale 1ns/1ns
 
-`timescale 1ns/100ps
+module clock # (
+        parameter period = 10
+    )
+    (
+        input enable, reset,
+        output logic clk = 0
+    );
+   //
+   //
+   // ---------------- PORT DEFINITIONS ----------------
+   //
+    localparam half_period = period/2; //50% duty cycle
 
-module clock
-    #(parameter ticks = 10)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input ENABLE,
-    output reg CLOCK
-);
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-    reg start_clock;
-    real clock_on = ticks/2; // duty cycle = 50%
-    real clock_off = ticks/2;
+   //
+   // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
+   //
 
-    // initialize variables
-    initial begin
-      CLOCK <= 0;
-      start_clock <= 0;
-    end
+   always begin
+    #half_period;
+    clk = ~clk; //toggle clock every half period
+    if (reset) clk = 1'b0; //clock goes low on reset
+    if (!enable) clk = 'bz; //clock goes hi z when disabled
+  end
 
-    always @(posedge ENABLE or negedge ENABLE) begin
-        if (ENABLE) begin
-            start_clock = 1;
-        end
-        else begin
-            start_clock = 0;
-        end
-        // #ticks CLOCK = ~CLOCK;
-    end
-    always @(start_clock) begin
-        CLOCK = 0;
-        while (start_clock) begin
-            #(clock_off) CLOCK = 1;
-            #(clock_on) CLOCK = 0;
-        end
-        CLOCK = 0;
-    end
 endmodule
 
 `endif // CLOCK

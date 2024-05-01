@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: YOUR NAMES
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-29
 //     Module Name: tb_controller
 //     Description: Test bench for controller
 //

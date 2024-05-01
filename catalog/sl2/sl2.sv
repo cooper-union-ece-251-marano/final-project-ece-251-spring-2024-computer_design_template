@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski & Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: sl2
 //     Description: shift left by 2 (multiply by 4)
 //
@@ -16,17 +16,17 @@
 `timescale 1ns/100ps
 
 module sl2
-    #(parameter n = 32)(
+    #(parameter n = 16)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
-    input  logic [(n-1):0] A,
-    output logic [(n-1):0] Y
+    input  logic [(n-1):0] in,
+    output logic [(n-1):0] out
 );
     //
     // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
     //
-    assign Y = {A[(n-3):0], 2'b00};
+    assign out = {in[(n-3):0], 2'b00};
 endmodule
 
 `endif // SL2

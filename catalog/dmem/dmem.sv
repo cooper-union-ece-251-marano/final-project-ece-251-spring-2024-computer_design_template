@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Siann Han and Isabel Zulawski
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-04-27
 //     Module Name: dmem
-//     Description: 32-bit RISC memory ("data" segment)
+//     Description: 16-bit RISC memory ("data" segment)
 //
 // Revision: 1.0
 //
@@ -17,11 +17,11 @@
 
 module dmem
 // n=bit length of register; r=bit length of addr to limit memory and not crash your verilog emulator
-    #(parameter n = 32, parameter r = 6)(
+    #(parameter n = 16, parameter r = 6)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
-    input  logic           clk, write_enable,
+    input  logic clk, write_enable,
     input  logic [(n-1):0] addr, writedata,
     output logic [(n-1):0] readdata
 );
@@ -30,10 +30,15 @@ module dmem
     //
     logic [(n-1):0] RAM[0:(2**r-1)];
 
-    assign readdata = RAM[addr[(n-1):2]]; // word aligned (ignores lower 2 bits of address)
+    assign readdata = {RAM[addr], RAM[addr + 1]};
 
-    always @(posedge clk) // write on posedge
-        if (write_enable) RAM[addr[(n-1):2]] <= writedata;
+    // Clock generation
+    always @(posedge clk) begin
+    if (write_enable) begin
+        RAM[addr] <= writedata[15:8];    // High byte
+        RAM[addr + 1] <= writedata[7:0]; // Low byte
+    end
+end
 
 endmodule
 

@@ -1,57 +1,63 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: Prof Rob Marano
+// Engineer: Isabel Zulawski and Siann Han
 // 
-//     Create Date: 2023-02-07
+//     Create Date: 2024-05-28
 //     Module Name: tb_dff
-//     Description: Test bench for 32 bit D flip flop
+//     Description: Test bench for 16 bit D flip flop
 //
 // Revision: 1.0
 //
 //////////////////////////////////////////////////////////////////////////////////
-`ifndef TB_DFF
-`define TB_DFF
-
 `timescale 1ns/100ps
-`include "dff.sv"
-`include "../clock/clock.sv"
+
+`include "./dff.sv"
 
 module tb_dff;
-    parameter n = 32; // #bits for an operand
-    wire clk;
-    logic enable;
-    logic reset;
-    logic [(n-1):0] d;
-    logic [(n-1):0] q;
+    //
+    // ---------------- DECLARATIONS OF PARAMETERS ----------------
+    //
+    parameter N = 16;
+    //
+    // ---------------- DECLARATIONS OF DATA TYPES ----------------
+    //
 
-   initial begin
-        $dumpfile("dff.vcd");
-        $dumpvars(0, uut0, uut1);
-        //$monitor("d = %b (0x%0h)(%0d) q = %b (0x%0h)(%0d) ", d,d,d,q,q,q);
-        $monitor("time=%0t \t d=%h q=%h",$realtime, d, q);
+     reg [15:0] d;
+  reg clk, rst, en; //inputs are reg for test bench
+  wire [15:0] q; //, qn;     //outputs are wire for test bench
+
+   //
+    //
+    // ---------------- INITIALIZE TEST BENCH ----------------
+
+initial
+    begin
+      d = 16'b0;
+      rst = 0;
+      en = 1;
+      clk = 0;
     end
 
-    initial begin
-        d <= #n'h8000;
-        enable <= 0;
-        #10 enable <= 1;
-        #10 reset <= 1;
-        #20 d <= #n'h0001;
-        #10 reset <= 0;
-        #10 reset <=0;
-        #20 d <= #n'h0001;
-        #100 enable <= 0;
-        $finish;        
-    end
+always #5 clk = ~clk;
 
-    dff uut0(
-        .CLOCK(clk), .RESET(reset), .D(d), .Q(q)
-    );
+   initial
+   begin: apply_stimulus
+    reg [7:0] invect; //invect[7] terminates the for loop
+     for (int i = 0; i < 256; i = i + 1)
+      begin
+       invect = i;
+        d = invect;
 
-   clock uut1(
-        .ENABLE(enable),
-        .CLOCK(clk)
-    );
+
+        #5 $display("clk=%b, rst=%b, en=%b, d=%b, q=%b", clk, rst, en, d, q);
+      end
+      $finish;
+   end
+
+   //
+   // ---------------- INSTANTIATE UNIT UNDER TEST (UUT) ----------------
+   //
+  dff uut(.clk(clk), .en(en), .rst(rst), .d(d), .q(q));
+
 endmodule
-`endif // TB_DFF

@@ -24,47 +24,95 @@
 `include "../signext/signext.sv"
 
 module datapath
-    #(parameter n = 32)(
+    #(parameter WIDTH = 16)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
-    input  logic        clk, reset,
-    input  logic        memtoreg, pcsrc,
-    input  logic        alusrc, regdst,
-    input  logic        regwrite, jump,
+    input  logic        clk,
+    input  logic        reset,
+    input  logic        memtoreg,
+    input  logic        pcsrc,
+    input  logic        alusrc,
+    input  logic        regdst,
+    input  logic        regwrite,
+    input  logic        jump,
     input  logic [2:0]  alucontrol,
     output logic        zero,
-    output logic [(n-1):0] pc,
-    input  logic [(n-1):0] instr,
-    output logic [(n-1):0] aluout, writedata,
-    input  logic [(n-1):0] readdata
+    output logic [WIDTH-1:0] pc,
+    input  logic [WIDTH-1:0] instr,
+    output logic [WIDTH-1:0] aluout,
+    output logic [WIDTH-1:0] writedata,
+    input  logic [WIDTH-1:0] readdata
 );
     //
     // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
     //
     logic [4:0]  writereg;
-    logic [(n-1):0] pcnext, pcnextbr, pcplus4, pcbranch;
-    logic [(n-1):0] signimm, signimmsh;
-    logic [(n-1):0] srca, srcb;
-    logic [(n-1):0] result;
+    logic [WIDTH-1:0] pc_next, pc_br_next, pc_plus2, pc_branch;
+    logic [WIDTH-1:0] sign_imm, sign_imm_shifted;
+    logic [WIDTH-1:0] src_a, src_b;
+    logic [WIDTH-1:0] alu_result;
 
-    // "next PC" logic
-    dff #(n)    pcreg(clk, reset, pcnext, pc);
-    adder       pcadd1(pc, 32'b100, pcplus4);
-    sl2         immsh(signimm, signimmsh);
-    adder       pcadd2(pcplus4, signimmsh, pcbranch);
-    mux2 #(n)   pcbrmux(pcplus4, pcbranch, pcsrc, pcnextbr);
-    mux2 #(n)   pcmux(pcnextbr, {pcplus4[31:28], instr[25:0], 2'b00}, jump, pcnext);
+    // "Next PC" logic
+    dff #(WIDTH) pc_register(
+    .d(pc_next),
+    .clk(clk),
+    .rst(1'b0),
+    .en(1'b1),
+    .q(pc)
+    );
 
-    // register file logic
-    regfile     rf(clk, regwrite, instr[25:21], instr[20:16], writereg, result, srca, writedata);
-    mux2 #(5)   wrmux(instr[20:16], instr[15:11], regdst, writereg);
-    mux2 #(n)   resmux(aluout, readdata, memtoreg, result);
-    signext     se(instr[15:0], signimm);
+    adder #(WIDTH) pc_adder1(
+    .a(pc),             
+    .b(16'd2),          
+    .enable(1'b1),      
+    .reset(1'b0),       
+    .cin(1'b0),         
+    .S(pc_plus2),      
+    .Cout()           
+);
+
+    sl2 #(WIDTH) imm_shift(
+    .in(sign_imm),
+    .out(sign_imm_shifted)
+);
+
+    adder #(WIDTH) pc_adder2(
+    .a(pc_plus2),             
+    .b(sign_imm_shifted),          
+    .enable(1'b1),      
+    .reset(1'b0),       
+    .cin(1'b0),         
+    .S(pc_branch),      
+    .Cout()           
+    );
+    
+    mux2 #(WIDTH) pc_branch_mux(
+    .a(pc_plus2),
+    .b(pc_branch),
+    .sel(pcsrc),
+    .enable(1'b1),
+    .y(pc_br_next)
+    );
+
+    mux2 #(WIDTH) pc_jump_mux(
+    .a(pc_br_next),
+    .b({pc_plus2[15:12], instr[11:0], 2'b00}[15:0]),
+    .sel(jump),
+    .enable(1'b1),
+    .y(pc_next)
+    );
+   //mux2 #(WIDTH) pc_jump_mux(pc_br_next, {pc_plus2[15:12], instr[11:0], 2'b00}, jump, pc_next);
+
+    // Register file logic
+    regfile register_file(clk, regwrite, instr[11:8], instr[7:4], writereg, alu_result, src_a, writedata);
+    mux2 #(5) write_reg_mux(instr[7:4], instr[3:0], regdst, writereg);
+    mux2 #(WIDTH) result_mux(aluout, readdata, memtoreg, alu_result);
+    signext sign_extender(instr[15:0], sign_imm);
 
     // ALU logic
-    mux2 #(n)   srcbmux(writedata, signimm, alusrc, srcb);
-    alu         alu(clk, srca, srcb, alucontrol, aluout, zero);
+    mux2 #(WIDTH) src_b_mux(writedata, sign_imm, alusrc, src_b);
+    //alu alu_unit(clk, src_a, src_b, alucontrol, aluout, zero);
 
 endmodule
 

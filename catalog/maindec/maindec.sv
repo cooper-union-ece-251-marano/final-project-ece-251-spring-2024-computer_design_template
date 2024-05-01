@@ -1,53 +1,45 @@
-//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
 // Engineer: Prof Rob Marano
 // 
-//     Create Date: 2023-02-07
-//     Module Name: maindec
-//     Description: 32-bit RISC-based CPU main decoder (MIPS)
+// Create Date: 2023-02-07
+// Module Name: maindec
+// Description: 16-bit RISC-based CPU main decoder
 //
 // Revision: 1.0
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 `ifndef MAINDEC
 `define MAINDEC
 
 `timescale 1ns/100ps
 
 module maindec
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic [5:0] op,
+    #(parameter n = 16)(
+    input  logic [3:0] op, // 4-bit opcode
     output logic       memtoreg, memwrite,
     output logic       branch, alusrc,
     output logic       regdst, regwrite,
     output logic       jump,
-    output logic [1:0] aluop
+    output logic       aluop // Assuming 1-bit ALU op for simplicity
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-    logic [8:0] controls; // 9-bit control vector
 
-    // controls has 9 logical signals
-    assign {regwrite, regdst, alusrc, branch, memwrite,
-            memtoreg, jump, aluop} = controls;
-
-    always @* begin
+    // Use blocking assignments for combinational logic
+    always_comb begin
         case(op)
-            6'b000000: controls <= 9'b110000010; // RTYPE
-            6'b100011: controls <= 9'b101001000; // LW
-            6'b101011: controls <= 9'b001010000; // SW
-            6'b000100: controls <= 9'b000100001; // BEQ
-            6'b001000: controls <= 9'b101000000; // ADDI
-            6'b000010: controls <= 9'b000000100; // J
-            default:   controls <= 9'bxxxxxxxxx; // illegal operation
+            4'b0000: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b11000010; // RTYPE
+            4'b0001: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b10101000; // LW
+            4'b0010: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b00100100; // SW
+            4'b0011: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b00010001; // BEQ
+            4'b0100: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b10100000; // ADDI
+            4'b0101: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'b00000100; // J
+            // ... other cases ...
+            default: {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = 8'bxxxxxxx1; // Illegal operation (defined)
         endcase
     end
 
 endmodule
 
 `endif // MAINDEC
+
