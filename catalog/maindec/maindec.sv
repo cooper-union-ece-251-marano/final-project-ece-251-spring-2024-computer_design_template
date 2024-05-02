@@ -16,35 +16,28 @@
 `timescale 1ns/100ps
 
 module maindec
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic [5:0] op,
+    #(parameter n = 16)(
+    input  logic [3:0] op,  // Assuming 4-bit opcode
     output logic       memtoreg, memwrite,
     output logic       branch, alusrc,
-    output logic       regdst, regwrite,
-    output logic       jump,
-    output logic [1:0] aluop
+    output logic       regwrite, jump,
+    output logic [1:0] aluop  
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-    logic [8:0] controls; // 9-bit control vector
+    logic [5:0] controls; // 6-bit control
 
-    // controls has 9 logical signals
-    assign {regwrite, regdst, alusrc, branch, memwrite,
-            memtoreg, jump, aluop} = controls;
+    // Assigning each bit of controls to an output
+    assign {regwrite, alusrc, branch, memwrite, memtoreg, jump} = controls;
 
+    // Define the behavior based on the opcode
     always @* begin
-        case(op)
-            6'b000000: controls <= 9'b110000010; // RTYPE
-            6'b100011: controls <= 9'b101001000; // LW
-            6'b101011: controls <= 9'b001010000; // SW
-            6'b000100: controls <= 9'b000100001; // BEQ
-            6'b001000: controls <= 9'b101000000; // ADDI
-            6'b000010: controls <= 9'b000000100; // J
-            default:   controls <= 9'bxxxxxxxxx; // illegal operation
+        case (op)
+            4'b0000: controls <= 6'b100010; // Example: R-type operation
+            4'b0001: controls <= 6'b100100; // LW: Load word
+            4'b0010: controls <= 6'b010100; // SW: Store word
+            4'b0011: controls <= 6'b101000; // Branch if equal (example)
+            4'b0100: controls <= 6'b100001; // ADDI: Add immediate
+            4'b0101: controls <= 6'b000001; // J: Jump
+            default: controls <= 6'b000000; // Undefined or illegal operation
         endcase
     end
 

@@ -24,10 +24,7 @@
 `include "../signext/signext.sv"
 
 module datapath
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
+    #(parameter n = 16)(
     input  logic        clk, reset,
     input  logic        memtoreg, pcsrc,
     input  logic        alusrc, regdst,
@@ -39,30 +36,27 @@ module datapath
     output logic [(n-1):0] aluout, writedata,
     input  logic [(n-1):0] readdata
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
     logic [4:0]  writereg;
-    logic [(n-1):0] pcnext, pcnextbr, pcplus4, pcbranch;
+    logic [(n-1):0] pcnext, pcnextbr, pcplus2, pcbranch;
     logic [(n-1):0] signimm, signimmsh;
     logic [(n-1):0] srca, srcb;
     logic [(n-1):0] result;
 
-    // "next PC" logic
+    // Adjusted logic for 16 bit
     dff #(n)    pcreg(clk, reset, pcnext, pc);
-    adder       pcadd1(pc, 32'b100, pcplus4);
+    adder       pcadd1(pc, n'b10, pcplus2); // Increment PC by 2 for 16-bit instructions
     sl2         immsh(signimm, signimmsh);
-    adder       pcadd2(pcplus4, signimmsh, pcbranch);
-    mux2 #(n)   pcbrmux(pcplus4, pcbranch, pcsrc, pcnextbr);
-    mux2 #(n)   pcmux(pcnextbr, {pcplus4[31:28], instr[25:0], 2'b00}, jump, pcnext);
+    adder       pcadd2(pcplus2, signimmsh, pcbranch);
+    mux2 #(n)   pcbrmux(pcplus2, pcbranch, pcsrc, pcnextbr);
+    mux2 #(n)   pcmux(pcnextbr, {pcplus2[(n-1):12], instr[11:0], 2'b00}, jump, pcnext);
 
-    // register file logic
-    regfile     rf(clk, regwrite, instr[25:21], instr[20:16], writereg, result, srca, writedata);
-    mux2 #(5)   wrmux(instr[20:16], instr[15:11], regdst, writereg);
+    // Simplified register file logic
+    regfile     rf(clk, regwrite, instr[(n/2)-1:(n/4)], instr[(n/4)-1:0], writereg, result, srca, writedata);
+    mux2 #(5)   wrmux(instr[(n/4)-1:0], instr[(n/2)-1:(n/4)], regdst, writereg);
     mux2 #(n)   resmux(aluout, readdata, memtoreg, result);
-    signext     se(instr[15:0], signimm);
+    signext     se(instr[(n/2)-1:0], signimm);
 
-    // ALU logic
+    // Simplified ALU logic
     mux2 #(n)   srcbmux(writedata, signimm, alusrc, srcb);
     alu         alu(clk, srca, srcb, alucontrol, aluout, zero);
 

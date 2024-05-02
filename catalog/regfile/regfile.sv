@@ -17,7 +17,7 @@
 
 module regfile
     // n=bit length of register; r=bit length of addr of registers
-    #(parameter n = 32, parameter r = 5)(
+    #(parameter n = 16, parameter r = 4)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
@@ -30,7 +30,7 @@ module regfile
     //
     // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
     //
-    logic [(n-1):0] rf[(2**5-1):0];
+    logic [(n-1):0] rf[(2**r-1):0]; // 16 registers
 
     // three ported register file
     // read two ports combinationally

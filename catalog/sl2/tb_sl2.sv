@@ -16,23 +16,38 @@
 `timescale 1ns/100ps
 `include "sl2.sv"
 
-module tb_sl2;
-    parameter n = 32;
-    logic [(n-1):0] a, y;
+module tb_sll;
 
-   initial begin
-        $dumpfile("sl2.vcd");
-        $dumpvars(0, uut);
-        //$monitor("a = %0b (0x%0h)(%0d) y = %0b (0x%0h)(%0d) ", a, a, a, y, y, y);
-        $monitor("time=%0t \t a=%b y=%b",$realtime, a, y);
-    end
+    parameter WIDTH = 16;   // Width of the input and output for test
+    parameter SHIFT = 1;   // shift one position
+    reg [WIDTH-1:0] in;    // input in
+    wire [WIDTH-1:0] out;  // output out
 
-    initial begin
-        a <= #n'h0000000F;
-    end
-
-    sl2 uut(
-        .A(a), .Y(y)
+    // UTT
+    sll #(.WIDTH(WIDTH), .SHIFT(SHIFT)) uut(
+        .in(in),
+        .out(out)
     );
+
+    // Start test
+    initial begin
+        $dumpfile("tb_sll.vcd"); 
+        $dumpvars(0, tb_sll);    
+
+        // Loop through all possible combinations
+        for (int i = 0; i < (1 << WIDTH); i++) begin
+            in = i;
+            #10;  // Wait 
+        end
+
+        
+        $finish;
+    end
+
+    // Monitor output
+    initial begin
+        $monitor("Time = %0t | in = %b | out = %b", $time, in, out);
+    end
+
 endmodule
 `endif // TB_SL2

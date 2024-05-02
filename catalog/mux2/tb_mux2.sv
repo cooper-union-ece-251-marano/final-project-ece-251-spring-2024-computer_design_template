@@ -17,39 +17,42 @@
 `include "mux2.sv"
 `include "../clock/clock.sv"
 
-module tb_mux2;
-    parameter n = 32; // #bits for an operand
-    logic s;
-    logic [(n-1):0] d0, d1;
-    logic [(n-1):0] y;
-    wire clk;
-    logic enable;
+module tb_mux_2to1;
 
+    parameter WIDTH = 16;  // 8 bit 2-1 mux
+    reg [WIDTH-1:0] a, b;  // inputs a and b
+    reg sel;               // 1 bit select 
+    wire [WIDTH-1:0] y;    // output Y 
 
-   initial begin
-        $dumpfile("mux2.vcd");
-        $dumpvars(0, uut0, uut1);
-        // $monitor("s = %0b d0 = (0x%0h)(%0d) d1 = (0x%0h)(%0d) y = (0x%0h)(%0d)", s, d0, d0, d1, d1, y, y);
-        $monitor("time=%0t \t enable=%0b s=%0b y=%h d0=%h d1=%h",$realtime, enable, s, y, d0, d1);
-    end
+   // UTT
+    mux2 #(.WIDTH(WIDTH)) uut(
+        .A(a), 
+        .B(b), 
+        .sel(sel), 
+        .Y(y)
+    );
 
+    // Start test
     initial begin
-        d0 <= #n'h80000000;
-        d1 <= #n'h00000001;
-        enable <= 0;
-        #10 enable <= 1;
-        #10 s <= 1'b0;
-        #20 s <= 1'b1;
-        #100 enable <= 0;
+        $dumpfile("tb_mux_2to1.vcd"); 
+        $dumpvars(0, tb_mux_2to1);    
+
+        for (int i = 0; i < 2**WIDTH; i++) begin
+            // set select low, input a should be passed to output y
+            sel = 0;
+            a = i; b = ~i; #10;
+
+            // set select high, input b should be passed to output y
+            sel = 1;
+            #10; 
+        end
+
         $finish;
     end
 
-    mux2 uut0(
-        .S(s), .D0(d0), .D1(d1), .Y(y)
-    );
-    clock uut1(
-        .ENABLE(enable),
-        .CLOCK(clk)
-    );
+    initial begin
+        $monitor("Time = %t | a = %b | b = %b | sel = %b | y = %b", $time, a, b, sel, y);
+    end
+
 endmodule
 `endif // TB_MUX2

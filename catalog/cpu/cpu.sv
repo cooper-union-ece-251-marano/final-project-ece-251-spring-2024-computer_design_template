@@ -19,10 +19,7 @@
 `include "../datapath/datapath.sv"
 
 module cpu
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
+    #(parameter n = 16)(  // Adjust parameter for 16-bit operations
     input  logic           clk, reset,
     output logic [(n-1):0] pc,
     input  logic [(n-1):0] instr,
@@ -30,15 +27,12 @@ module cpu
     output logic [(n-1):0] aluout, writedata,
     input  logic [(n-1):0] readdata
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-
-    // cpu internal components
+    // Internal control signals
     logic       memtoreg, alusrc, regdst, regwrite, jump, pcsrc, zero;
-    logic [2:0] alucontrol;
-    
-    controller c(instr[(31):26], instr[5:0], zero,
+    logic [2:0] alucontrol;  // Assume ALU control logic stays same
+
+    // Adjust bit-widths of opcode and function codes if necessary
+    controller c(instr[(15):10], instr[5:0], zero,   // Adjust bit ranges
                     memtoreg, memwrite, pcsrc,
                     alusrc, regdst, regwrite, jump,
                     alucontrol);
@@ -50,5 +44,3 @@ module cpu
                     aluout, writedata, readdata);
 
 endmodule
-
-`endif // CPU

@@ -19,17 +19,15 @@
 `include "../aludec/aludec.sv"
 
 module controller
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic [5:0] op, funct,
+    #(parameter n = 16)(  // Adjusted for 16-bit width
+    input  logic [4:0] op,  // Example: reduced size if fewer opcodes
+    input  logic [4:0] funct,  // Adjust funct size based on the new instruction set
     input  logic       zero,
     output logic       memtoreg, memwrite,
     output logic       pcsrc, alusrc,
     output logic       regdst, regwrite,
     output logic       jump,
-    output logic [2:0] alucontrol
+    output logic [2:0] alucontrol  // Adjust control signals based on required ALU operations
 );
     //
     // ---------------- MODULE DESIGN IMPLEMENTATION ----------------

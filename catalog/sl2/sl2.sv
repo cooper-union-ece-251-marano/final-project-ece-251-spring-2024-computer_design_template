@@ -15,18 +15,18 @@
 
 `timescale 1ns/100ps
 
-module sl2
-    #(parameter n = 32)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic [(n-1):0] A,
-    output logic [(n-1):0] Y
+module sll #(
+    parameter WIDTH = 16,  // input and output widths
+    parameter SHIFT = 1    // Desired shift amount
+)(
+    input wire [WIDTH-1:0] in,  // input in
+    output wire [WIDTH-1:0] out // output out
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
-    assign Y = {A[(n-3):0], 2'b00};
+
+    
+    // Shift the input left by desired amount positions
+    assign out = in << SHIFT;
+
 endmodule
 
 `endif // SL2

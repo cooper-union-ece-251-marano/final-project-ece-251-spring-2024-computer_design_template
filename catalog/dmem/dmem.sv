@@ -16,24 +16,23 @@
 `timescale 1ns/100ps
 
 module dmem
-// n=bit length of register; r=bit length of addr to limit memory and not crash your verilog emulator
-    #(parameter n = 32, parameter r = 6)(
-    //
-    // ---------------- PORT DEFINITIONS ----------------
-    //
-    input  logic           clk, write_enable,
+    #(parameter n = 16,  // Data width set for 16 bits
+      parameter r = 10)  // Address width set for 10 bits, 1024 memory locations
+(
+    input  logic clk, write_enable,
     input  logic [(n-1):0] addr, writedata,
     output logic [(n-1):0] readdata
 );
-    //
-    // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
-    //
+    // Memory array
     logic [(n-1):0] RAM[0:(2**r-1)];
 
-    assign readdata = RAM[addr[(n-1):2]]; // word aligned (ignores lower 2 bits of address)
+    // Data read operation, word aligned by ignoring the least significant bit
+    assign readdata = RAM[addr[(r-1):1]];  // Adjusted for 16-bit word alignment 
 
-    always @(posedge clk) // write on posedge
-        if (write_enable) RAM[addr[(n-1):2]] <= writedata;
+    // Write operation, word aligned
+    always @(posedge clk)
+        if (write_enable)
+            RAM[addr[(r-1):1]] <= writedata;  // Adjusted for 16-bit word alignment
 
 endmodule
 

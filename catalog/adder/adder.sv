@@ -7,7 +7,7 @@
 // module: adder
 // hdl: Verilog
 //
-// Engineer: Aidan Cusa & Kristof Jablonowski
+// author: Kristof Jablonowski <kristof.jablonowski@cooper.edu>
 //
 ///////////////////////////////////////////////////////////////////////////////
 
