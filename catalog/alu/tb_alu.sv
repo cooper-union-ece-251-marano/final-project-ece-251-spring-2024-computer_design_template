@@ -24,7 +24,7 @@ module tb_alu;
     wire zero;
 
     // Instantiate the ALU
-    ALU #(.WIDTH(n)) uut (
+    alu #(.WIDTH(n)) uut (
         .a(a),
         .b(b),
         .alu_control(alu_control),

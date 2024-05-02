@@ -29,36 +29,40 @@ module datapath
     input  logic        memtoreg, pcsrc,
     input  logic        alusrc, regdst,
     input  logic        regwrite, jump,
-    input  logic [2:0]  alucontrol,
+    input  logic [3:0]  alucontrol,
     output logic        zero,
-    output logic [(n-1):0] pc,
-    input  logic [(n-1):0] instr,
-    output logic [(n-1):0] aluout, writedata,
-    input  logic [(n-1):0] readdata
+    output logic [(15):0] pc,
+    input  logic [(15):0] instr,
+    output logic [(15):0] aluout, alurem, writedata,
+    input  logic [(15):0] readdata
 );
-    logic [4:0]  writereg;
-    logic [(n-1):0] pcnext, pcnextbr, pcplus2, pcbranch;
-    logic [(n-1):0] signimm, signimmsh;
-    logic [(n-1):0] srca, srcb;
-    logic [(n-1):0] result;
+    logic [3:0]  writereg;
+    logic [(15):0] pcnext, pcnextbr, pcplus2, pcbranch;
+    logic [(15):0] signimm, signimmsh;
+    logic [(15):0] srca, srcb;
+    logic [(15):0] result;
+
+    reg pcplus2_cout, pcplus1_cout, alu_rem;
 
     // Adjusted logic for 16 bit
-    dff #(n)    pcreg(clk, reset, pcnext, pc);
-    adder       pcadd1(pc, n'b10, pcplus2); // Increment PC by 2 for 16-bit instructions
-    sl2         immsh(signimm, signimmsh);
-    adder       pcadd2(pcplus2, signimmsh, pcbranch);
-    mux2 #(n)   pcbrmux(pcplus2, pcbranch, pcsrc, pcnextbr);
-    mux2 #(n)   pcmux(pcnextbr, {pcplus2[(n-1):12], instr[11:0], 2'b00}, jump, pcnext);
-
+    dff #(16)       pcreg(clk, reset, pcnext, pc);
+    adder           pcadd1(pc, 16'b10, 1'b0, reset, pcplus2, pcplus1_cout); // Increment PC by 2 for 16-bit instructions
+    sl2             immsh(signimm, signimmsh);
+    adder           pcadd2(pcplus2, signimmsh, 1'b0, reset, pcbranch, pcplus2_cout);
+    mux2 #(16)      pcbrmux(pcplus2, pcbranch, pcsrc, pcnextbr);
+    mux2 #(16)      pcmux(pcnextbr, {pcplus2[13:12], instr[11:0], 2'b00}, jump, pcnext);
+    //mux2 #(16)      pcmux(pcnextbr, {pcplus2[15:12], instr[11:0], 2'b00}, jump, pcnext);
+    
+    
     // Simplified register file logic
     regfile     rf(clk, regwrite, instr[(n/2)-1:(n/4)], instr[(n/4)-1:0], writereg, result, srca, writedata);
-    mux2 #(5)   wrmux(instr[(n/4)-1:0], instr[(n/2)-1:(n/4)], regdst, writereg);
-    mux2 #(n)   resmux(aluout, readdata, memtoreg, result);
+    mux2 #(4)   wrmux(instr[(n/4)-1:0], instr[(n/2)-1:(n/4)], regdst, writereg);
+    mux2 #(16)   resmux(aluout, readdata, memtoreg, result);
     signext     se(instr[(n/2)-1:0], signimm);
 
     // Simplified ALU logic
-    mux2 #(n)   srcbmux(writedata, signimm, alusrc, srcb);
-    alu         alu(clk, srca, srcb, alucontrol, aluout, zero);
+    mux2 #(16)   srcbmux(writedata, signimm, alusrc, srcb);
+    alu         alu(srca, srcb, alucontrol, aluout, zero, alurem);
 
 endmodule
 

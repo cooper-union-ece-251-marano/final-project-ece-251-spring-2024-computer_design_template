@@ -15,7 +15,7 @@
 
 `timescale 1ns/100ps
 
-module ALU #(
+module alu #(
     parameter WIDTH = 16  // Parameter for the bit width of the ALU
 )(
     input logic [WIDTH-1:0] a,     // First operand
@@ -55,7 +55,7 @@ module ALU #(
                         remainder = 16'b0;
                     end
             4'b1100: result = a + b;                      // ADDI (Use as ADD, b is immediate)
-            default: result = 16'b0;                      // Default case
+            default: result = 16'bx;       // Default case
         endcase
         zero = (result == 0);  // Set the zero flag if the result is 0
     end

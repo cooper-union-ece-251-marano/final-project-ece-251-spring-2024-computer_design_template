@@ -15,7 +15,7 @@
 
 `timescale 1ns/100ps
 
-module sll #(
+module sl2 #(
     parameter WIDTH = 16,  // input and output widths
     parameter SHIFT = 1    // Desired shift amount
 )(

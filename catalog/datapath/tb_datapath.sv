@@ -24,7 +24,7 @@ module tb_datapath;
     // Inputs to the datapath
     reg clk, reset;
     reg memtoreg, pcsrc, alusrc, regdst, regwrite, jump;
-    reg [2:0] alucontrol;
+    reg [3:0] alucontrol;
     reg [(n-1):0] instr, readdata;
 
     // Outputs from the datapath
@@ -60,8 +60,10 @@ module tb_datapath;
     initial begin
         // Initialize all inputs
         reset = 1; memtoreg = 0; pcsrc = 0; alusrc = 0;
-        regdst = 0; regwrite = 0; jump = 0; alucontrol = 3'b000;
+        regdst = 0; regwrite = 0; jump = 0; alucontrol = 4'b000;
         instr = 0; readdata = 0;
+        $monitor("Time=%t, clk=%b, reset=%b, aluout=%d, zero=%b, pc=%h, instr=%h, alucontrol=%b", 
+             $time, clk, reset, aluout, zero, pc, instr, alucontrol);
 
         // Apply reset
         #10 reset = 0;
@@ -69,7 +71,7 @@ module tb_datapath;
         // Define a test scenario
         // Example: Test simple addition
         instr = 16'h2801;  // Assuming an ADD instruction format
-        alusrc = 1; regwrite = 1; regdst = 1; alucontrol = 3'b010;  // ALU should add
+        alusrc = 1; regwrite = 1; regdst = 1; alucontrol = 4'b000;  // ALU should add
         readdata = 16'd5;
         
         // Enable register write for an R-type instruction
