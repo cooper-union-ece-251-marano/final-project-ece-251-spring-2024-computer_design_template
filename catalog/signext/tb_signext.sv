@@ -18,6 +18,52 @@
 
 module tb_signext;
 
+    // Testbench signals
+    reg [7:0] a;                 // 8-bit input to the sign extender
+    wire [15:0] y;               // 16-bit output from the sign extender
+
+    // Instantiate the sign extender
+    signext uut (
+        .a(a),
+        .y(y)
+    );
+
+    // Initial block for simulation
+    initial begin
+        // Initialize the input
+        a = 0;
+        #10;     // Wait for 10 ns
+
+        // Apply test vectors
+        // Test a positive value
+        a = 8'd127;  // Maximum positive value for 8-bit
+        #10;
+        $display("Input: %b, Output: %b", a, y);
+
+        // Test a negative value
+        a = 8'b10000001;  // -127 in two's complement
+        #10;
+        $display("Input: %b, Output: %b", a, y);
+
+        // Test zero
+        a = 8'd0;  // Zero
+        #10;
+        $display("Input: %b, Output: %b", a, y);
+
+        // Test most negative value
+        a = 8'b10000000;  // -128 in two's complement
+        #10;
+        $display("Input: %b, Output: %b", a, y);
+
+        // Finish the simulation
+        $finish;
+    end
+
+endmodule
+/*
+
+module tb_signext;
+
     parameter IN_WIDTH = 1;  // Input width of number
     parameter OUT_WIDTH = 16; // Output width desired
     reg [IN_WIDTH-1:0] in;    // input in
@@ -58,5 +104,5 @@ module tb_signext;
         $monitor("Time = %0t | in = %b | out = %b", $time, in, out);
     end
 
-endmodule
+endmodule*/
 `endif // TB_SIGNEXT

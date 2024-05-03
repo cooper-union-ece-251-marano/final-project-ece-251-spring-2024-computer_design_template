@@ -24,7 +24,7 @@ module tb_sll;
     wire [WIDTH-1:0] out;  // output out
 
     // UTT
-    sll #(.WIDTH(WIDTH), .SHIFT(SHIFT)) uut(
+    sl2 #(.WIDTH(WIDTH), .SHIFT(SHIFT)) uut(
         .in(in),
         .out(out)
     );

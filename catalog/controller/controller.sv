@@ -20,8 +20,8 @@
 
 module controller
     #(parameter n = 16)(  // Adjusted for 16-bit width
-    input  logic [4:0] op,  // Example: reduced size if fewer opcodes
-    input  logic [4:0] funct,  // Adjust funct size based on the new instruction set
+    input  logic [3:0] op,  // Example: reduced size if fewer opcodes
+    input  logic [3:0] funct,  // Adjust funct size based on the new instruction set
     input  logic       zero,
     output logic       memtoreg, memwrite,
     output logic       pcsrc, alusrc,

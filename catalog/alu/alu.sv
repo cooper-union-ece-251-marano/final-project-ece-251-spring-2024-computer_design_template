@@ -38,23 +38,22 @@ module alu #(
             4'b0010: result = a & b;                      // AND
             4'b0011: result = a | b;                      // OR
             4'b0100: result = a ^ b;                      // XOR
-            4'b0101: result = ~(a | b);                   // NOR
+            4'b0101: result = ~a;                         // NOT (dont use b if want to use this field)
             4'b0110: result = (a < b) ? 16'b1 : 16'b0;    // Set on less than (SLT)
             4'b0111: result = a << b[3:0];                // Logical shift left
             4'b1000: result = a >> b[3:0];                // Logical shift right
-            4'b1001: result = a >>> b[3:0];               // Arithmetic shift right
-            4'b1010: begin                                // Multiply
+            4'b1001: begin                                // Multiply
                         mult_result = a * b;
                         result = mult_result[WIDTH-1:0];  // Lower half of result
                     end
-            4'b1011: if (b != 0) begin                    // Divide
+            4'b1010: if (b != 0) begin                    // Divide
                         result = a / b;                   // Quotient
                         remainder = a % b;                // Remainder
                     end else begin
                         result = 16'b0;                   // Division by zero, undefined
                         remainder = 16'b0;
                     end
-            4'b1100: result = a + b;                      // ADDI (Use as ADD, b is immediate)
+            4'b1111: result = a + b;       // where b is a constant
             default: result = 16'bx;       // Default case
         endcase
         zero = (result == 0);  // Set the zero flag if the result is 0

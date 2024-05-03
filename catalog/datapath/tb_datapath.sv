@@ -16,9 +16,9 @@
 `timescale 1ns/100ps
 `include "datapath.sv"
 
-`timescale 1ns / 100ps
-
 module tb_datapath;
+
+// Parameters
     parameter n = 16;  // Assuming the datapath is configured for 16-bit operations
 
     // Inputs to the datapath
@@ -30,6 +30,8 @@ module tb_datapath;
     // Outputs from the datapath
     wire zero;
     wire [(n-1):0] pc, aluout, writedata;
+
+    parameter CLK_PERIOD = 10;
 
     // Instantiate the datapath
     datapath #(.n(n)) uut (
@@ -51,6 +53,60 @@ module tb_datapath;
     );
 
     // Clock generation
+    always begin
+        # (CLK_PERIOD / 2) clk = ~clk;
+    end
+
+    // Test procedure
+    initial begin
+        // Initialize inputs
+        clk = 0;
+        reset = 1;
+        memtoreg = 0;
+        pcsrc = 0;
+        alusrc = 0;
+        regdst = 0;
+        regwrite = 0;
+        jump = 0;
+        alucontrol = 4'b0000;
+        instr = 16'd0;
+        readdata = 16'd0;
+
+        // Reset the DUT
+        # CLK_PERIOD;
+        reset = 0;
+
+        // Add your test cases here
+        // Example: Perform a test with a specific instruction
+        // Update inputs as needed, and observe outputs
+        // Test Case 1: Simple addition operation
+
+        //instr = 16'b0000000000000011; // Sample instruction (change as needed)
+        instr = 16'h0012;  // Assuming an ADD instruction format
+        alusrc = 1;
+        alucontrol = 4'b0000; // ALU control for addition
+        regwrite = 1;
+        regdst = 1;
+
+        // Apply test inputs and wait for some time
+        # (CLK_PERIOD * 2);
+
+        // Check results
+        $display("Test Case 1: Addition Operation");
+        $display("PC: %h, ALU Output: %h, Write Data: %h", pc, aluout, writedata);
+
+        // Add more test cases here
+
+        // End simulation
+        $finish;
+    end
+
+endmodule
+`endif // TB_DATAPATH
+/*
+
+
+    // Clock generation
     initial begin
         clk = 0;
         forever #5 clk = ~clk;  // Clock with a period of 10 ns
@@ -62,8 +118,8 @@ module tb_datapath;
         reset = 1; memtoreg = 0; pcsrc = 0; alusrc = 0;
         regdst = 0; regwrite = 0; jump = 0; alucontrol = 4'b000;
         instr = 0; readdata = 0;
-        $monitor("Time=%t, clk=%b, reset=%b, aluout=%d, zero=%b, pc=%h, instr=%h, alucontrol=%b", 
-             $time, clk, reset, aluout, zero, pc, instr, alucontrol);
+        //$monitor("Time=%t, clk=%b, reset=%b, aluout=%d, zero=%b, pc=%h, instr=%h, alucontrol=%b", 
+        //    $time, clk, reset, aluout, zero, pc, instr, alucontrol);
 
         // Apply reset
         #10 reset = 0;
@@ -91,5 +147,4 @@ module tb_datapath;
         $finish;  // Terminate simulation
     end
 
-endmodule
-`endif // TB_DATAPATH
+endmodule*/
