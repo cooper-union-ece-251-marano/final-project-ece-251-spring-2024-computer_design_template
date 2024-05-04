@@ -82,7 +82,7 @@ module tb_datapath;
         // Test Case 1: Simple addition operation
 
         //instr = 16'b0000000000000011; // Sample instruction (change as needed)
-        instr = 16'h0012;  // Assuming an ADD instruction format
+        instr = 16'b0000_0000_0000_0000;  // Assuming an ADD instruction format
         alusrc = 1;
         alucontrol = 4'b0000; // ALU control for addition
         regwrite = 1;

@@ -16,55 +16,69 @@
 `timescale 1ns/100ps
 `include "controller.sv"
 
-module tb_controller;
+
+module test_controller;
+
     // Inputs
-    reg [3:0] op;
+    reg [2:0] op;
     reg [3:0] funct;
-    reg       zero;
+    reg zero;
 
     // Outputs
-    wire      memtoreg, memwrite;
-    wire      pcsrc, alusrc;
-    wire      regdst, regwrite;
-    wire      jump;
-    wire [3:0] alucontrol;
+    wire memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump;
+    wire [2:0] alucontrol;
 
-    // Instantiate the controller module
-    controller uut (
-        .op(op),
-        .funct(funct),
-        .zero(zero),
-        .memtoreg(memtoreg),
-        .memwrite(memwrite),
-        .pcsrc(pcsrc),
-        .alusrc(alusrc),
-        .regdst(regdst),
-        .regwrite(regwrite),
+    // Instantiate the Unit Under Test (UUT)
+    controller #(16) uut (
+        .op(op), 
+        .funct(funct), 
+        .zero(zero), 
+        .memtoreg(memtoreg), 
+        .memwrite(memwrite), 
+        .pcsrc(pcsrc), 
+        .alusrc(alusrc), 
+        .regdst(regdst), 
+        .regwrite(regwrite), 
         .jump(jump),
         .alucontrol(alucontrol)
     );
 
-    // Initial block for running tests
+    // Testbench logic
     initial begin
-        // Initialize inputs
+        // Initialize Inputs
         op = 0; funct = 0; zero = 0;
 
-        // Monitor changes
-        $monitor("At time %t, op=%b, funct=%b, zero=%b -> memtoreg=%b, memwrite=%b, pcsrc=%b, alusrc=%b, regdst=%b, regwrite=%b, jump=%b, alucontrol=%b",
-                 $time, op, funct, zero, memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol);
+        // Wait for global reset
+        #100;
 
-        // Test Sequence
-        // Test each opcode and function with zero flag variations
-        #10 op = 4'b0001; funct = 4'b0010; zero = 1'b0;
-        #10 op = 4'b0001; funct = 4'b0010; zero = 1'b1;  // Toggle zero to test branching logic
-        #10 op = 4'b0010; funct = 4'b0100; zero = 1'b0;
-        #10 op = 4'b0010; funct = 4'b0100; zero = 1'b1;
-        #10 op = 4'b0100; funct = 4'b1000; zero = 1'b0;
+        // Test each opcode and funct combination with varying zero input
+        {op, funct, zero} = 9'b000_0001_0; #100;
+        {op, funct, zero} = 9'b000_0011_0; #100;
+        {op, funct, zero} = 9'b100_0000_0; #100;
+        {op, funct, zero} = 9'b101_0000_0; #100;
+        {op, funct, zero} = 9'b111_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
+        //{op, funct, zero} = 9'b000_0000_0; #100;
 
-        // Additional tests can be added here for further coverage
+        // Test undefined or edge cases
+        //{op, funct, zero} = 9'bxxx_xxxx_0; #100;
+        //{op, funct, zero} = 9'bxxx_xxxx_1; #100;
 
-        #10 $finish;  // End of simulation
+        // Finish simulation
+        $finish;
     end
-endmodule
 
-`endif //TB_CONTROLLER
+    // Monitor changes and print them
+    initial begin
+        $monitor("At time %t, op = %b, funct = %b, zero = %b, memtoreg = %b, memwrite = %b, pcsrc = %b, alusrc = %b, regdst = %b, regwrite = %b, jump = %b, alucontrol = %b",
+                 $time, op, funct, zero, memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol);
+    end
+
+endmodule
+`endif

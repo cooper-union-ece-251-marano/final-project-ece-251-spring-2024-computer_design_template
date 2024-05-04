@@ -17,10 +17,9 @@
 
 `include "../maindec/maindec.sv"
 `include "../aludec/aludec.sv"
-
 module controller
     #(parameter n = 16)(  // Adjusted for 16-bit width
-    input  logic [3:0] op,  // Example: reduced size if fewer opcodes
+    input  logic [2:0] op,  // Example: reduced size if fewer opcodes
     input  logic [3:0] funct,  // Adjust funct size based on the new instruction set
     input  logic       zero,
     output logic       memtoreg, memwrite,
@@ -34,6 +33,11 @@ module controller
     //
     logic [1:0] aluop;
     logic       branch;
+
+    /*always @(*) begin
+        $display("Time: %t, op: %b, funct: %b, zero: %b, memtoreg: %b, memwrite: %b, pcsrc: %b, alusrc: %b, regdst: %b, regwrite: %b, jump: %b, alucontrol: %b, aluop: %b",
+                 $time, op, funct, zero, memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol, aluop);
+    end*/
     
     // CPU main decoder
     maindec md(op, memtoreg, memwrite, branch, alusrc, regdst, regwrite, jump, aluop);

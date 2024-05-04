@@ -17,7 +17,7 @@
 
 module dmem
     #(parameter n = 16,  // Data width set for 16 bits
-      parameter r = 10)  // Address width set for 10 bits, 1024 memory locations
+      parameter r = 9)  // Address width set for 10 bits, 1024 memory locations
 (
     input  logic clk, write_enable,
     input  logic [(n-1):0] addr, writedata,
@@ -27,7 +27,13 @@ module dmem
     logic [(n-1):0] RAM[0:(2**r-1)];
 
     // Data read operation, word aligned by ignoring the least significant bit
-    assign readdata = RAM[addr[(r-1):1]];  // Adjusted for 16-bit word alignment 
+    assign readdata = RAM[addr[(r-1):1]];  // Adjusted for 16-bit word alignment
+    
+    // initialize ram value to 0
+    initial begin  
+        for(i=0;i<256;i=i+1)  
+            ram[i] <= 16'd0;  
+    end
 
     // Write operation, word aligned
     always @(posedge clk)

@@ -17,27 +17,30 @@
 
 module maindec
     #(parameter n = 16)(
-    input  logic [3:0] op,  // Assuming 4-bit opcode
+    input  logic [2:0] op,  // Assuming 4-bit opcode
     output logic       memtoreg, memwrite,
     output logic       branch, alusrc,
-    output logic       regwrite, jump,
+    output logic       regdst, regwrite, jump,
     output logic [1:0] aluop  
 );
-    logic [5:0] controls; // 6-bit control
+    logic [8:0] controls; // 6-bit control
 
     // Assigning each bit of controls to an output
-    assign {regwrite, alusrc, branch, memwrite, memtoreg, jump} = controls;
+    assign {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = controls;
 
     // Define the behavior based on the opcode
+    // (check table for control values)
     always @* begin
         case (op)
-            4'b0000: controls <= 6'b100010; // Example: R-type operation
-            4'b0001: controls <= 6'b100100; // LW: Load word
-            4'b0010: controls <= 6'b010100; // SW: Store word
-            4'b0011: controls <= 6'b101000; // Branch if equal (example)
-            4'b0100: controls <= 6'b100001; // ADDI: Add immediate
-            4'b0101: controls <= 6'b000001; // J: Jump
-            default: controls <= 6'b000000; // Undefined or illegal operation
+            3'b000: controls <= 9'b110000000; // R: R-type operation
+            3'b001: controls <= 9'b101001011; // I: Load word
+            3'b010: controls <= 9'b001010011; // I: Store word
+            3'b011: controls <= 9'b101000011; // I: ADDI
+            3'b100: controls <= 9'b000100010; // I: BEQ
+            3'b101: controls <= 9'b101000001; // I: SLTI
+            3'b110: controls <= 9'b000000100; // J: Jump
+            3'b111: controls <= 9'b110001100; // J: jump and link
+            default: controls <= 9'bxxxxxxxxx; // Undefined or illegal operation
         endcase
     end
 

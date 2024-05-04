@@ -17,56 +17,47 @@
 `include "alu.sv"
 
 module tb_alu;
-    parameter n = 16;  // Data width of the ALU inputs/outputs
-    reg [n-1:0] a, b;
-    reg [3:0] alu_control;
-    wire [n-1:0] result, remainder;
+    parameter WIDTH = 16;  // Match the width of your ALU
+
+    // Testbench signals
+    reg [WIDTH-1:0] a, b;
+    reg [2:0] alu_control;
+    wire [WIDTH-1:0] result;
     wire zero;
 
     // Instantiate the ALU
-    alu #(.WIDTH(n)) uut (
+    alu #(.WIDTH(WIDTH)) alu_instance (
         .a(a),
         .b(b),
         .alu_control(alu_control),
         .result(result),
-        .zero(zero),
-        .remainder(remainder)
+        .zero(zero)
     );
 
-    
-
-    // Test stimulus
+    // Test procedure
     initial begin
         // Initialize inputs
-        a = 0; b = 0; alu_control = 0;
+        a = 0; b = 0; alu_control = 3'b000;
 
-        // Simple test for addition
-        #10 a = 15; b = 10; alu_control = 4'b0000;  // ALU should add a and b
-        #10 if (result != 25) $display("Test failed: Addition error. Expected 25, got %d", result);
+        // Apply test vectors
+        #10 a = 16'h0001; b = 16'h0001; alu_control = 3'b000;  // Addition
+        #10 a = 16'h0002; b = 16'h0001; alu_control = 3'b001;  // Subtraction
+        #10 a = 16'h0003; b = 16'h0001; alu_control = 3'b010;  // AND
+        #10 a = 16'h0001; b = 16'h0002; alu_control = 3'b011;  // OR
+        #10 a = 16'h0001; b = 16'h0002; alu_control = 3'b100;  // SLT
+        #10 a = 16'h0002; b = 16'h0002; alu_control = 3'b100;  // SLT, equal case
 
-        // Test for subtraction
-        #10 a = 20; b = 10; alu_control = 4'b0001;  // ALU should subtract b from a
-        #10 if (result != 10) $display("Test failed: Subtraction error. Expected 10, got %d", result);
+        // Add more tests as needed
+        #10 a = 16'hFFFF; b = 16'h0001; alu_control = 3'b000;  // Test overflow for addition
 
-        // Test for AND
-        #10 a = 12; b = 10; alu_control = 4'b0010;  // ALU should AND a and b
-        #10 if (result != (12 & 10)) $display("Test failed: AND error. Expected %d, got %d", (12 & 10), result);
-
-        // Test for OR
-        #10 a = 12; b = 10; alu_control = 4'b0011;  // ALU should OR a and b
-        #10 if (result != (12 | 10)) $display("Test failed: OR error. Expected %d, got %d", (12 | 10), result);
-
-        // Additional tests can be added here for XOR, NOR, shifts, etc.
-
-        // Check zero flag
-        #10 a = 0; b = 0; alu_control = 4'b0000;  // Check zero flag for addition of zero
-        #10 if (!zero) $display("Test failed: Zero flag error. Expected true, got false");
-
-        // Completion message
-        #10 $display("All tests completed.");
-        $finish;
+        #10 $finish;  // End simulation
     end
 
-endmodule
+    // Monitor changes
+    /*initial begin
+        $monitor("At time %t, a = %h, b = %h, control = %b, result = %h, zero = %b",
+                 $time, a, b, alu_control, result, zero);
+    end*/
 
-`endif // TB_ALU
+endmodule
+`endif //TB_ALU

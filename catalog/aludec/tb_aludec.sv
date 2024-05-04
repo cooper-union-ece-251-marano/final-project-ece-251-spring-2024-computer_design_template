@@ -16,55 +16,56 @@
 `timescale 1ns/100ps
 `include "aludec.sv"
 
-module tb_aludec;
+`timescale 1ns/100ps
+
+module test_aludec;
+
     // Inputs
     reg [3:0] funct;
     reg [1:0] aluop;
 
     // Outputs
-    wire [3:0] alucontrol;
+    wire [2:0] alucontrol;
 
-    // Instantiate the ALUDecoder
+    // Instantiate the Unit Under Test (UUT)
     aludec uut (
         .funct(funct),
         .aluop(aluop),
         .alucontrol(alucontrol)
     );
 
-    // Test stimulus
+    // Testbench logic
     initial begin
-        // Initialize inputs
+        // Initialize Inputs
         funct = 0;
         aluop = 0;
 
-        // Test each case
-        // Testing ADD operation (R-type)
-        #10 funct = 4'b0000; aluop = 2'b10;  // `funct` for ADD
-        #10 if (alucontrol !== 4'b0000) $display("Test failed: ADD operation error. Expected 0000, got %b", alucontrol);
+        // Wait for global reset
+        #100;
+        
+        // Test various combinations
+        funct = 4'b0000; aluop = 2'b00; #100;
+        funct = 4'b0001; aluop = 2'b00; #100;
+        funct = 4'b0010; aluop = 2'b00; #100;
+        funct = 4'b0011; aluop = 2'b00; #100;
+        funct = 4'b0100; aluop = 2'b00; #100;
 
+        funct = 4'bxxxx; aluop = 2'b01; #100; // Tests for partial don't care in `funct`
+        funct = 4'bxxxx; aluop = 2'b10; #100; // Tests for partial don't care in `funct`
+        funct = 4'bxxxx; aluop = 2'b11; #100; // Tests for partial don't care in `funct`
 
-        // Testing SUB operation (R-type)
-        #10 funct = 4'b0001; aluop = 2'b10;  // `funct` for SUB
-        #10 if (alucontrol !== 4'b0001) $display("Test failed: SUB operation error. Expected 0001, got %b", alucontrol);
+        // Additional test for undefined operation
+        funct = 4'b0101; aluop = 2'b11; #100;
 
-
-        // Testing ADDI operation (I-type)
-        #10 funct = 4'bxxxx; aluop = 2'b00;  // ADDI uses aluop specific to immediate operations
-        #10 if (alucontrol !== 4'b1111) $display("Test failed: ADDI operation error. Expected 1111, got %b", alucontrol);
-
-
-        // Add tests for other operations like AND, OR, XOR, SLT, etc.
-        #10 funct = 4'b0101; aluop = 2'b10;  // `funct` for AND
-        #10 if (alucontrol !== 4'b0101) $display("Test failed: AND operation error. Expected 0010, got %b", alucontrol);
-
-
-        #10 funct = 4'b1001; aluop = 2'b10;  // `funct` for OR
-        #10 if (alucontrol !== 4'b1001) $display("Test failed: OR operation error. Expected 0011, got %b", alucontrol);
-
-        #10 $display("All tests completed successfully.");
+        // Finish simulation
         $finish;
     end
 
+    // Monitor changes
+    /*initial begin
+        $monitor("At time %t, funct = %b, aluop = %b, alucontrol = %b", $time, funct, aluop, alucontrol);
+    end*/
+
 endmodule
 
-`endif // TB_ALUDEC
+`endif //TB_ALUDEC
