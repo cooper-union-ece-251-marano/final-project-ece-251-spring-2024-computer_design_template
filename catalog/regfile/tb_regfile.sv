@@ -18,7 +18,13 @@
 
 module tb_regfile;
     parameter n = 16;  // Bit width of the registers is now 16 bits
-    parameter r = 5;   // Number of address bits, assuming 32 registers (can be adjusted if fewer are needed)
+    parameter r = 3;   // Number of address bits, assuming 32 registers (can be adjusted if fewer are needed)
+    
+    //we = write enable
+    //wa = write address
+    //ra1 = read address 1
+    //ra2 = read address 2
+    //wd3 = write data
 
     // Inputs
     reg clk, we3;

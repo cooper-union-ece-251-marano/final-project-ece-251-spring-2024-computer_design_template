@@ -32,15 +32,22 @@ module cpu
     logic [2:0] alucontrol;  // Assume ALU control logic stays same
 
     // Adjust bit-widths of opcode and function codes if necessary
-    controller c(instr[(15):10], instr[5:0], zero,   // Adjust bit ranges
+    controller c(instr[15:13], instr[3:0], zero,   // Adjust bit ranges
                     memtoreg, memwrite, pcsrc,
                     alusrc, regdst, regwrite, jump,
                     alucontrol);
 
+    always @(*) begin
+        $display("Outputs: memtoreg=%b, memwrite=%b, pcsrc=%b, alusrc=%b, regdst=%b, regwrite=%b, jump=%b, alucontrol=%b", 
+            memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol);
+    end
+
     datapath dp(clk, reset, memtoreg, pcsrc,
                     alusrc, regdst, regwrite, jump,
-                    alucontrol,
-                    zero, pc, instr,
-                    aluout, writedata, readdata);
+                    alucontrol, readdata, instr,
+                    zero, pc,
+                    aluout, writedata);
 
 endmodule
+
+`endif

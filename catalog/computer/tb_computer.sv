@@ -19,29 +19,77 @@
 `include "../clock/clock.sv"
 
 module tb_computer;
-  parameter n = 16; // # bits to represent the instruction / ALU operand / general purpose register (GPR)
-  parameter m = 5;  // # bits to represent the address of the 2**m=32 GPRs in the CPU
-  logic clk;
-  logic clk_enable;
-  logic reset;
-  logic memwrite;
-  logic [31:0] writedata;
-  logic [31:0] dataadr;
 
-  logic firstTest, secondTest;
+    parameter n = 16; // # bits to represent the instruction / ALU operand / general purpose register (GPR)
+    parameter m = 3;  // # bits to represent the address of the 2**m=32 GPRs in the CPU
+    logic clk;
+    logic clk_enable;
+    logic reset;
+    logic memwrite;
+    logic [15:0] writedata;
+    logic [15:0] dataadr;
 
-  // instantiate the CPU as the device to be tested
-  computer dut(clk, reset, writedata, dataadr, memwrite);
-  // generate clock to sequence tests
-  // always
-  //   begin
-  //     clk <= 1; # 5; clk <= 0; # 5;
-  //   end
+    logic firstTest, secondTest;
 
-  // instantiate the clock
-  clock dut1(.ENABLE(clk_enable), .CLOCK(clk));
+    // instantiate the CPU as the device to be tested
+    computer dut(clk, reset, writedata, dataadr, memwrite);
+    // generate clock to sequence tests
+    // always
+    //   begin
+    //     clk <= 1; # 5; clk <= 0; # 5;
+    //   end
 
+    // instantiate the clock
+    clock dut1(.ENABLE(clk_enable), .CLOCK(clk));
 
+    initial begin
+        firstTest = 1'b0;
+        secondTest = 1'b0;
+        $dumpfile("tb_computer.vcd");
+        $dumpvars(0, dut1, clk, reset, writedata, dataadr, memwrite);
+        $monitor("t=%t\t0x%4h\t%4d\t%1d", $realtime, writedata, dataadr, memwrite);
+    end
+
+    // initialize test
+    initial begin
+        #0 clk_enable <= 0; #50 reset <= 1; #50; reset <= 0; #50 clk_enable <= 1;
+        #100 $finish;
+    end
+
+    // monitor what happens at posedge of clock transition
+    always @(posedge clk) begin
+        $display("+");
+        // Display relevant debug information (update as necessary)
+        $display("\t+$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
+        $display("writedata\tdataadr\tmemwrite");
+    end
+
+    // run program
+    // monitor what happens at negedge of clock transition
+    always @(negedge clk) begin
+        $display("-");
+        // Display relevant debug information (update as necessary)
+        $display("\t-$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
+        $display("writedata\tdataadr\tmemwrite");
+    end
+
+    always @(negedge clk, posedge clk) begin
+        // check results
+        if (dut.dmem.RAM[84] === 16'h0096) begin
+            $display("Successfully wrote 0x%4h at RAM[%3d]", writedata, dataadr);
+            firstTest = 1'b1;
+        end
+        if (firstTest === 1'b1) begin
+            $display("Program successfully completed");
+            $finish;
+        end
+    end
+
+endmodule
+
+`endif
+
+    /*
   initial begin
     firstTest = 1'b0;
     secondTest = 1'b0;
@@ -148,3 +196,4 @@ module tb_computer;
 endmodule
 
 `endif // TB_COMPUTER
+*/

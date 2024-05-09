@@ -34,7 +34,7 @@ module datapath
     input  logic [(15):0]   instr,
     output logic            zero,
     output logic [(15):0]   pc,
-    output logic [(15):0]   aluout, alurem, readdata2
+    output logic [(15):0]   aluout, writedata
 );
     logic [2:0]  writereg;
     logic [(15):0] pcnext, pcnextbr, pcplus2, pcbranch;
@@ -50,7 +50,7 @@ module datapath
     // Adjusted logic for 16 bit
     dff #(16)       pcreg(clk, reset, pcnext, pc);
 
-    regfile         rf(clk, regwrite, instr[11:9], instr[8:6], writereg, result, srca, readdata2);
+    regfile         rf(clk, regwrite, instr[11:9], instr[8:6], writereg, result, srca, writedata);
     
     // pc + 2
     adder           pcadd1(pc, 16'b10, pcplus2); // Increment PC by 2 for 16-bit instructions
@@ -76,7 +76,7 @@ module datapath
     mux2 #(16)      mux_memreg(aluout, readdata, memtoreg, result);
     
     // alu mux
-    mux2 #(16)      srcbmux(readdata2, signimm, alusrc, srcb);
+    mux2 #(16)      srcbmux(writedata, signimm, alusrc, srcb);
 
 endmodule
 
