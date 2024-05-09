@@ -17,20 +17,14 @@
 module adder #(parameter w = 16)(  // adder width parameter
     input [w - 1:0] a,
     input [w - 1:0] b,
-    input c_in,
-    input reset,
-    output reg [w - 1:0] s,
-    output reg c_out
+    output reg [w - 1:0] s
 );
   
+    logic [w:0] temp;
+
     always @ (*) begin
-        if(reset) begin
-            c_out = 'b0;
-            s = 'b0;
-        end
-        else begin
-            {c_out, s} = a + b + c_in;
-        end
+        temp = a + b;
+        s = temp[w - 1:0];
     end
 
 endmodule
