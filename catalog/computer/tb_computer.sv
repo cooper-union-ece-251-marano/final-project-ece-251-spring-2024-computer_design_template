@@ -43,47 +43,59 @@ module tb_computer;
     clock dut1(.ENABLE(clk_enable), .CLOCK(clk));
 
     initial begin
-        firstTest = 1'b0;
-        secondTest = 1'b0;
+        // firstTest = 1'b0;
+        // secondTest = 1'b0;
         $dumpfile("tb_computer.vcd");
-        $dumpvars(0, dut1, clk, reset, writedata, dataadr, memwrite);
-        $monitor("t=%t\t0x%4h\t%4d\t%1d", $realtime, writedata, dataadr, memwrite);
+        $dumpvars(0, dut, clk, reset, writedata, dataadr, memwrite);
+//        $monitor("t=%t writedata=0x%4h dataadr=%4d memwrite%1d", $realtime, writedata, dataadr, memwrite);
+        $monitor("t=%t PC=0x%h  INSTR=0x%h (%b) OP=%b ra1=0x%h ra2=0x%h wa3=0x%h wd3=0x%h rd1=0x%h rd2=0x%h srca=0x%h srcb=0x%h alucontrol=0x%h aluout=0x%h zero=%b",
+          $time, dut.mips.pc, dut.mips.instr, dut.mips.instr, dut.mips.c.md.op,
+          dut.mips.dp.rf.ra1, dut.mips.dp.rf.ra2, dut.mips.dp.rf.wa3, dut.mips.dp.rf.wd3,
+          dut.mips.dp.rf.rd1, dut.mips.dp.rf.rd2,
+          dut.mips.dp.srca, dut.mips.dp.srcb, dut.mips.dp.alucontrol, dut.mips.dp.aluout, dut.mips.dp.zero);
+//          dut.mips.dp.alu.a, dut.mips.dp.alu.b, dut.mips.dp.alu.alu_control, dut.mips.dp.alu.result, dut.mips.dp.alu.zero);
+        
     end
 
     // initialize test
     initial begin
-        #0 clk_enable <= 0; #50 reset <= 1; #50; reset <= 0; #50 clk_enable <= 1;
-        #100 $finish;
+        #0 clk_enable <= 0;
+        #0 reset <= 1;
+        #10 clk_enable <= 1;
+        #10 reset <= 0;
+        #20 $finish;
     end
 
     // monitor what happens at posedge of clock transition
-    always @(posedge clk) begin
-        $display("+");
+    // always @(posedge clk) begin
+    //     $display("+");
         // Display relevant debug information (update as necessary)
-        $display("\t+$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
-        $display("writedata\tdataadr\tmemwrite");
-    end
+        // $display("\t+$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
+        // $display("writedata\tdataadr\tmemwrite");
+    // end
 
     // run program
     // monitor what happens at negedge of clock transition
-    always @(negedge clk) begin
-        $display("-");
+    // always @(negedge clk) begin
+    //     $display("-");
         // Display relevant debug information (update as necessary)
-        $display("\t-$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
-        $display("writedata\tdataadr\tmemwrite");
-    end
+        // $display("\t-$t0 = 0x%4h", dut.mips.dp.rf.rf[7]); // Example of accessing a register
+        // $display("writedata\tdataadr\tmemwrite");
+    // end
 
-    always @(negedge clk, posedge clk) begin
+//    always @(negedge clk, posedge clk) begin
+//      $display("R0=0x%h  R1=0x%h R2=0x%h", dut.mips.datapath.rf, dut.mips.datapath.rf, dut.mips.datapath.rf);
+
         // check results
-        if (dut.dmem.RAM[84] === 16'h0096) begin
-            $display("Successfully wrote 0x%4h at RAM[%3d]", writedata, dataadr);
-            firstTest = 1'b1;
-        end
-        if (firstTest === 1'b1) begin
-            $display("Program successfully completed");
-            $finish;
-        end
-    end
+        // if (dut.dmem.RAM[84] === 16'h0096) begin
+        //     $display("Successfully wrote 0x%4h at RAM[%3d]", writedata, dataadr);
+        //     firstTest = 1'b1;
+        // end
+        // if (firstTest === 1'b1) begin
+        //     $display("Program successfully completed");
+        //     $finish;
+        // end
+//    end
 
 endmodule
 

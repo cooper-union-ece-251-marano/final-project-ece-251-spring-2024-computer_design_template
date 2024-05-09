@@ -42,15 +42,15 @@ module datapath
     logic [(15):0] srca, srcb;
     logic [(15):0] result;
 
-    always @(posedge clk) begin
-        $display("Time: %t, Instruction: %b, srca: %d, srcb: %d, alucontrol: %b, aluout: %d, zero: %b, signimm: %d, readdata: %d, reg1: %b, reg2: %b",
-            $time, instr, srca, srcb, alucontrol, aluout, zero, signimm, readdata,  instr[11:9], instr[7:5],);
-    end
+    // always @(posedge clk) begin
+    //     $display("Time: %t, Instruction: %b, srca: %d, srcb: %d, alucontrol: %b, aluout: %d, zero: %b, signimm: %d, readdata: %d, reg1: %b, reg2: %b",
+    //         $time, instr, srca, srcb, alucontrol, aluout, zero, signimm, readdata,  instr[11:9], instr[7:5],);
+    // end
 
     // Adjusted logic for 16 bit
     dff #(16)       pcreg(clk, reset, pcnext, pc);
 
-    regfile         rf(clk, regwrite, instr[11:9], instr[8:6], writereg, result, srca, writedata);
+    regfile         rf(clk, regwrite, instr[12:10], instr[9:7], writereg, result, srca, writedata);
     
     // pc + 2
     adder           pcadd1(pc, 16'b10, pcplus2); // Increment PC by 2 for 16-bit instructions
