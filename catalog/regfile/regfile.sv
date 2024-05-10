@@ -45,7 +45,7 @@ module regfile
         for (i = 0; i < (2**r); i = i + 1) begin
             rf[i] = 0;
         end
-    end*d
+    end*/
 
     always @(posedge clk) begin
         if (we3) rf[wa3] <= wd3;	

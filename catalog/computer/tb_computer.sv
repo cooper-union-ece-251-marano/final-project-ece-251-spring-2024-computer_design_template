@@ -45,7 +45,7 @@ module tb_computer;
     initial begin
         // firstTest = 1'b0;
         // secondTest = 1'b0;
-        $readmemb("progs", dut.imem.RAM);
+        $readmemb("tests", dut.imem.RAM);
         $dumpfile("tb_computer.vcd");
         $dumpvars(0, dut, clk, reset, writedata, dataadr, memwrite);
         //$monitor("t=%t writedata=0x%4h dataadr=%4d memwrite%1d", $realtime, writedata, dataadr, memwrite);
@@ -65,7 +65,7 @@ module tb_computer;
         #10 clk_enable <= 1;
         #10 reset <= 0;
 
-        #50 $finish;
+        #150 $finish;
     end
 
     // monitor what happens at posedge of clock transition

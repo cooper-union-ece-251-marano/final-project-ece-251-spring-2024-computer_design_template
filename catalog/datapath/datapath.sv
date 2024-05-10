@@ -50,7 +50,7 @@ module datapath
     // Adjusted logic for 16 bit
     dff #(16)       pcreg(clk, reset, pcnext, pc);
 
-    regfile         rf(clk, regwrite, instr[9:7], instr[12:10], writereg, result, srca, writedata);
+    regfile         rf(clk, regwrite, instr[12:10], instr[9:7], writereg, result, srca, writedata);
     
     // pc + 2
     adder           pcadd1(pc, 16'b10, pcplus2); // Increment PC by 2 for 16-bit instructions
@@ -65,7 +65,7 @@ module datapath
     mux2 #(16)      mux_branch(pcplus2, pcbranch, pcsrc, pcnextbr);
     
     // jump mux
-    mux2 #(16)      mux_pc(pcnextbr, {pcplus2[15:14], instr[11:0], 2'b00}, jump, pcnext);
+    mux2 #(16)      mux_pc(pcnextbr, {pcplus2[15:14], instr[12:0], 1'b0}, jump, pcnext);
     
     // reg write mux
     mux2 #(3)       mux_writereg(instr[9:7], instr[6:4], regdst, writereg);

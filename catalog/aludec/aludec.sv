@@ -40,7 +40,7 @@ module aludec(
                 endcase
             end
             2'b01: begin //slti
-                alucontrol = 3'b010; 
+                alucontrol = 3'b100; 
             end
             2'b10: begin //beq
                 alucontrol = 3'b001; 

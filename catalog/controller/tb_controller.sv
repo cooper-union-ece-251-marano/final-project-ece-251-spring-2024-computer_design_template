@@ -57,6 +57,8 @@ module test_controller;
         {op, funct, zero} = 9'b100_0000_0; #100;
         {op, funct, zero} = 9'b101_0000_0; #100;
         {op, funct, zero} = 9'b111_0000_0; #100;
+        {op, funct, zero} = 9'b110_0000_0; #100;
+
         //{op, funct, zero} = 9'b000_0000_0; #100;
         //{op, funct, zero} = 9'b000_0000_0; #100;
         //{op, funct, zero} = 9'b000_0000_0; #100;
