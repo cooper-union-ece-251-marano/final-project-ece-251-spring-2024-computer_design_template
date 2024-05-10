@@ -38,6 +38,14 @@ module regfile
     // register 0 hardwired to 0
     // note: for pipelined processor, write third port
     // on falling edge of clk
+    //
+    // Initialize registers to 0
+    /*integer i;
+    initial begin
+        for (i = 0; i < (2**r); i = i + 1) begin
+            rf[i] = 0;
+        end
+    end*d
 
     always @(posedge clk) begin
         if (we3) rf[wa3] <= wd3;	

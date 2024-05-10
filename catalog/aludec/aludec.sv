@@ -21,26 +21,36 @@ module aludec(
     output logic [2:0] alucontrol // Control signals for the ALU
 );
 
-    wire [5:0] alucontrol_input = {aluop, funct};
-
     /*always @(*) begin
-        $display("At time %t, aluop: %b, funct: %b, alucontrol_input: %b, alucontrol: %b", $time, aluop, funct, alucontrol_input, alucontrol);
+        $display("At time %t, aluop: %b, funct: %b, alucontrol: %b", $time, aluop, funct, alucontrol);
     end*/
 
     // Define the ALU control logic
-    always @(alucontrol_input) begin
-        case (alucontrol_input)
+    always @(*) begin
+        case (aluop)
 
-            6'b110000: alucontrol = 3'b000; //addi, lw, sw
-            6'b100000: alucontrol = 3'b001; //beq
-            6'b010000: alucontrol = 3'b010; //slti
-            6'b000000: alucontrol = 3'b000; //add
-            6'b000001: alucontrol = 3'b001; //sub
-            6'b000010: alucontrol = 3'b010; //and
-            6'b000011: alucontrol = 3'b011; //or
-            6'b000100: alucontrol = 3'b100; //slt
-
-            default:   alucontrol = 3'bxxx; // Undefined operation
+            2'b00: begin
+                case (funct)
+                    4'b0000: alucontrol = 3'b000;  // add
+                    4'b0001: alucontrol = 3'b001; // sub
+                    4'b0010: alucontrol = 3'b010; // and
+                    4'b0011: alucontrol = 3'b011; // ir
+                    4'b0100: alucontrol = 3'b100; // slt
+                    default:   alucontrol = 3'bxxx; // Undefined operation
+                endcase
+            end
+            2'b01: begin //slti
+                alucontrol = 3'b010; 
+            end
+            2'b10: begin //beq
+                alucontrol = 3'b001; 
+            end
+            2'b11: begin //addi, lw, sw
+                alucontrol = 3'b000; // Specific immediate operations (e.g., addi special case)
+            end
+            default: begin
+                alucontrol = 3'bxxx;
+            end
         endcase
     end
 endmodule

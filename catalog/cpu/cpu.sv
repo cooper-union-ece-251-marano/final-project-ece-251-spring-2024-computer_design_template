@@ -36,11 +36,11 @@ module cpu
                     memtoreg, memwrite, pcsrc,
                     alusrc, regdst, regwrite, jump,
                     alucontrol);
-
-    // always @(*) begin
-    //     $display("Outputs: memtoreg=%b, memwrite=%b, pcsrc=%b, alusrc=%b, regdst=%b, regwrite=%b, jump=%b, alucontrol=%b", 
-    //         memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol);
-    // end
+    /*
+    always @(*) begin
+         $display("Outputs: memtoreg=%b, memwrite=%b, pcsrc=%b, alusrc=%b, regdst=%b, regwrite=%b, jump=%b, alucontrol=%b", 
+             memtoreg, memwrite, pcsrc, alusrc, regdst, regwrite, jump, alucontrol);
+    end*/
 
     datapath dp(clk, reset, memtoreg, pcsrc,
                     alusrc, regdst, regwrite, jump,
