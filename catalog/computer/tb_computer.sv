@@ -19,14 +19,14 @@
 `include "../clock/clock.sv"
 
 module tb_computer;
-  parameter n = 32; // # bits to represent the instruction / ALU operand / general purpose register (GPR)
-  parameter m = 5;  // # bits to represent the address of the 2**m=32 GPRs in the CPU
+  parameter n = 16; // # bits to represent the instruction / ALU operand / general purpose register (GPR)
+  parameter m = 4;  // # bits to represent the address of the 2**m=32 GPRs in the CPU
   logic clk;
   logic clk_enable;
   logic reset;
   logic memwrite;
-  logic [31:0] writedata;
-  logic [31:0] dataadr;
+  logic [15:0] writedata;
+  logic [15:0] dataadr;
 
   logic firstTest, secondTest;
 
@@ -37,9 +37,19 @@ module tb_computer;
   //   begin
   //     clk <= 1; # 5; clk <= 0; # 5;
   //   end
-
   // instantiate the clock
-  clock dut1(.ENABLE(clk_enable), .CLOCK(clk));
+  //clock dut1(.enable(clk_enable), .clk(clk));
+  always @(posedge clk) begin
+    $display("CLK: %h", clk);
+    end
+
+  // Adding wires to monitor `pc` and `instr`
+    wire [15:0] pc_out;
+    wire [15:0] instr_out;
+  
+  always @(posedge clk) begin
+        $display("Time: %t | IMEM Addr: %h | Fetched Instruction: %h", $time, dut.mips.dp.pc, dut.instr);
+    end
 
 
   initial begin
