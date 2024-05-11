@@ -49,6 +49,7 @@ module test_aludec;
         funct = 4'b0010; aluop = 2'b00; #100;
         funct = 4'b0011; aluop = 2'b00; #100;
         funct = 4'b0100; aluop = 2'b00; #100;
+        funct = 4'b0101; aluop = 2'b00; #100;
 
         funct = 4'bxxxx; aluop = 2'b01; #100; // Tests for partial don't care in `funct`
         funct = 4'bxxxx; aluop = 2'b10; #100; // Tests for partial don't care in `funct`
@@ -62,9 +63,9 @@ module test_aludec;
     end
 
     // Monitor changes
-    /*initial begin
+    initial begin
         $monitor("At time %t, funct = %b, aluop = %b, alucontrol = %b", $time, funct, aluop, alucontrol);
-    end*/
+    end
 
 endmodule
 

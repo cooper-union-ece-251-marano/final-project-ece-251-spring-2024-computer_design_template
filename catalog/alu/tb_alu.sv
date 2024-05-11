@@ -45,6 +45,7 @@ module tb_alu;
         #10 a = 16'h0003; b = 16'h0001; alu_control = 3'b010;  // AND
         #10 a = 16'h0001; b = 16'h0002; alu_control = 3'b011;  // OR
         #10 a = 16'h0001; b = 16'h0002; alu_control = 3'b100;  // SLT
+        #10 a = 16'h0001; b = 16'h0002; alu_control = 3'b101;  // NOR
         #10 a = 16'h0002; b = 16'h0002; alu_control = 3'b100;  // SLT, equal case
 
         // Add more tests as needed
@@ -54,10 +55,10 @@ module tb_alu;
     end
 
     // Monitor changes
-    /*initial begin
+    initial begin
         $monitor("At time %t, a = %h, b = %h, control = %b, result = %h, zero = %b",
                  $time, a, b, alu_control, result, zero);
-    end*/
+    end
 
 endmodule
 `endif //TB_ALU

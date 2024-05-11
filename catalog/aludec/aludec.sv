@@ -36,6 +36,7 @@ module aludec(
                     4'b0010: alucontrol = 3'b010; // and
                     4'b0011: alucontrol = 3'b011; // ir
                     4'b0100: alucontrol = 3'b100; // slt
+                    4'b0101: alucontrol = 3'b101; // nor
                     default:   alucontrol = 3'bxxx; // Undefined operation
                 endcase
             end

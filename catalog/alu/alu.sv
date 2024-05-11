@@ -33,6 +33,7 @@ module alu #(
             3'b010: result = a & b;                      // AND
             3'b011: result = a | b;                      // OR
             3'b100: result = (a < b) ? 16'b1 : 16'b0;    // Set on less than (SLT)
+            3'b101: result = ~(a | b);                   // NOR
             default: result = 16'bx;       // Default case
         endcase
     end
