@@ -25,12 +25,12 @@ alu_controls = {
 # Register name to binary mapping
 register_map = {
     '$zero': '000',
-    '$at': '001',
-    '$a0': '010',
-    '$a1': '011',
-    '$v0': '100',
-    '$v1': '101',
-    '$v2': '110',
+    '$t1': '001',
+    '$t2': '010',
+    '$t3': '011',
+    '$s1': '100',
+    '$s2': '101',
+    '$s3': '110',
     '$ra': '111'
 }
 
@@ -41,65 +41,55 @@ def reg_to_bin(reg):
     else:
         raise ValueError(f"Unknown register: {reg}")
 
-# Sign extension
+# Sign extension and binary formatting
 def format_binary(value, bits):
-    if value < 0:
-        value = (1 << bits) + value
-    return format(value, f'0{bits}b')[-bits:]
-
+    # Fix for negative values and ensuring we only get the least significant 'bits' bits
+    return format((value + (1 << bits)) % (1 << bits), f'0{bits}b')
 
 # Instruction to binary
-def assemble(parts, label_map):
+def assemble(parts, label_map, current_address):
     inst_type = parts[0].lower()
     opcode = opcodes[inst_type]
 
-    try:
-        if inst_type in ['add', 'sub', 'and', 'or', 'slt']:
-            rs = reg_to_bin(parts[3].strip(','))
-            rt = reg_to_bin(parts[2].strip(','))
-            rd = reg_to_bin(parts[1].strip(','))
-            funct_bin = alu_controls[inst_type]
-            return f'{opcode}{rs}{rt}{rd}{funct_bin}'
+    if inst_type in ['add', 'sub', 'and', 'or', 'slt']:
+        rs = reg_to_bin(parts[3].strip(','))
+        rt = reg_to_bin(parts[2].strip(','))
+        rd = reg_to_bin(parts[1].strip(','))
+        funct_bin = alu_controls[inst_type]
+        return f'{opcode}{rs}{rt}{rd}{funct_bin}'
 
-        elif inst_type in ['lw', 'sw']:
-            rt = reg_to_bin(parts[1].strip(','))
-            offset_reg = parts[2].split('(')
-            immediate = int(offset_reg[0])
-            rs = reg_to_bin(offset_reg[1].strip(')').strip(','))
-            immediate_bin = format_binary(immediate, 7)
-            return f'{opcode}{rs}{rt}{immediate_bin}'
+    elif inst_type in ['lw', 'sw']:
+        rt = reg_to_bin(parts[1].strip(','))
+        offset_reg = parts[2].split('(')
+        immediate = int(offset_reg[0])
+        rs = reg_to_bin(offset_reg[1].strip(')').strip(','))
+        immediate_bin = format_binary(immediate, 7)
+        return f'{opcode}{rs}{rt}{immediate_bin}'
 
-        elif inst_type in ['addi', 'beq', 'stli']:
-            rs = reg_to_bin(parts[2].strip(','))
-            rt = reg_to_bin(parts[1].strip(','))
-            immediate = parts[3]
-            if immediate.isdigit():
-                immediate_bin = format_binary(int(immediate), 7)
-            else:
-                immediate_bin = format_binary(label_map[immediate], 7)
-            return f'{opcode}{rs}{rt}{immediate_bin}'
+    elif inst_type in ['addi', 'beq', 'stli']:
+        rs = reg_to_bin(parts[2].strip(','))
+        rt = reg_to_bin(parts[1].strip(','))
+        immediate = parts[3]
+        if immediate.isdigit():
+            immediate_bin = format_binary(int(immediate), 7)
+        else:
+            offset = (label_map[immediate] - (current_address + 2)) * 2
+            immediate_bin = format_binary(offset, 7)
+        return f'{opcode}{rs}{rt}{immediate_bin}'
 
-        elif inst_type in ['j', 'jal']:
-            
-            address = parts[1]
-            # If address is a digit, handle as a word-aligned instruction address
-            if address.isdigit():
-                # Convert to a word index if assuming each instruction is word-aligned and starts at address 0
-                address_bin = format_binary(int(address), 13)  # Dividing by 4 assumes each instruction is 4 bytes
-            elif address in label_map:
-                # Handle label-based addressing, assuming labels point to word-aligned addresses
-                address_bin = format_binary(label_map[address], 13)
-            else:
-                address_bin = '0000000000000'  # Default case, could be improved
-            return f'{opcode}{address_bin}'    
-
-    except KeyError as e:
-        print(f"Error processing instruction: {parts}. Missing label or register info: {e}")
-        return None
+    elif inst_type in ['j', 'jal']:
+        address = parts[1]
+        if address.isdigit():
+            address_bin = format_binary(int(address), 13)
+        elif address in label_map:
+            address_bin = format_binary(label_map[address], 13)
+        else:
+            address_bin = '0000000000000'
+        return f'{opcode}{address_bin}'
 
 def process_asm_file(input_file, output_file):
     label_map = {}
-    address = 0
+    address = 0  # Instruction address counter
 
     try:
         with open(input_file, 'r') as file:
@@ -108,49 +98,24 @@ def process_asm_file(input_file, output_file):
                 if line.endswith(':'):
                     label = line[:-1]
                     label_map[label] = address
-                elif not line.startswith('#') and not line.endswith(':'):
-                    address += 1
+                elif not line.startswith('#') and line:
+                    address += 2  # Increment for each instruction
 
         with open(input_file, 'r') as file, open(output_file, 'w') as output_file:
+            address = 0
             for line in file:
                 line = line.strip()
                 if line and not line.startswith('#') and not line.endswith(':'):
                     parts = line.split()
-                    if parts[0] in ['j', 'beq', 'jal'] and parts[-1] in label_map:
-                        parts[-1] = str(label_map[parts[-1]])  # Replace label with its address
-                    binary_instruction = assemble(parts, label_map)
+                    binary_instruction = assemble(parts, label_map, address)
                     if binary_instruction:
                         output_file.write(binary_instruction + '\n')
+                    address += 2
 
     except Exception as e:
         print(f"An error occurred during assembly: {str(e)}")
 
-# Usag
+# Usage example
 input_asm_file = 'asm/fib.asm'
 output_machine_code_file = 'exe/fib_exe'
 process_asm_file(input_asm_file, output_machine_code_file)
-
-"""
-# Example instructions
-instructions = [
-    'addi $t1, $zero, 5',
-    'addi $t2, $zero, 9',
-    'add $s1, $t2, $t1',
-    'sub $s2, $s1, $t2',
-    'and $t3, $t1, $t2',
-    'or $t2, $t2, $t3',
-    'slt $s1, $t1, $t2',
-    'sw $t2, 32($t1)',
-    'lw $s1, 32($t1)',
-    'stli $s3, $t3, 8',
-    'beq $t2, $s1, 70',
-    'j 0'
-]
-
-# Assemble and print the instructions
-for inst in instructions:
-    try:
-        print(f'{assemble(inst)}')
-    except ValueError as e:
-        print(e)"""
-
