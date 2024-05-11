@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // The Cooper Union
 // ECE 251 Spring 2024
-// Engineer: YOUR NAMES
+// Engineer: Youngmin Kwon
 // 
 //     Create Date: 2023-02-07
 //     Module Name: adder
@@ -16,16 +16,18 @@
 `timescale 1ns/100ps
 
 module adder
-    #(parameter n = 32)(
+    #(parameter n = 16)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
-
+    input  wire [n-1:0] a,
+    input  wire [n-1:0] b,
+    output wire [n-1:0] sum
 );
     //
     // ---------------- MODULE DESIGN IMPLEMENTATION ----------------
     //
-
+    assign sum = a + b;
 endmodule
 
 `endif // ADDER
