@@ -25,12 +25,12 @@ alu_controls = {
 # Register name to binary mapping
 register_map = {
     '$zero': '000',
-    '$t1': '001',
-    '$t2': '010',
-    '$s1': '011',
-    '$s2': '100',
-    '$t3': '101',
-    '$s3': '110',
+    '$at': '001',
+    '$a0': '010',
+    '$a1': '011',
+    '$v0': '100',
+    '$v1': '101',
+    '$v2': '110',
     '$ra': '111'
 }
 
@@ -80,12 +80,19 @@ def assemble(parts, label_map):
             return f'{opcode}{rs}{rt}{immediate_bin}'
 
         elif inst_type in ['j', 'jal']:
+            
             address = parts[1]
-            if address in label_map:
+            # If address is a digit, handle as a word-aligned instruction address
+            if address.isdigit():
+                # Convert to a word index if assuming each instruction is word-aligned and starts at address 0
+                address_bin = format_binary(int(address), 13)  # Dividing by 4 assumes each instruction is 4 bytes
+            elif address in label_map:
+                # Handle label-based addressing, assuming labels point to word-aligned addresses
                 address_bin = format_binary(label_map[address], 13)
             else:
-                address_bin = '0000000000000'  # default for undefined labels, consider handling this case better
-            return f'{opcode}{address_bin}'
+                address_bin = '0000000000000'  # Default case, could be improved
+            return f'{opcode}{address_bin}'    
+
     except KeyError as e:
         print(f"Error processing instruction: {parts}. Missing label or register info: {e}")
         return None
@@ -118,9 +125,9 @@ def process_asm_file(input_file, output_file):
     except Exception as e:
         print(f"An error occurred during assembly: {str(e)}")
 
-# Usage
-input_asm_file = 'out-test.asm'
-output_machine_code_file = 'fib_exe'
+# Usag
+input_asm_file = 'asm/fib.asm'
+output_machine_code_file = 'exe/fib_exe'
 process_asm_file(input_asm_file, output_machine_code_file)
 
 """

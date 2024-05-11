@@ -58,14 +58,15 @@ module datapath
     
     // it shift lefts one *actually*
     signext         se({1'b0, instr[6:0]}, signimm);
-    sl2             immsh(signimm, signimmsh);
-    adder           pcadd2(pcplus2, signimmsh, pcbranch);
+    //sl2             immsh(signimm, signimmsh);
+    adder           pcadd2(signimm, 16'b0, pcbranch);
 
     // branch mux
     mux2 #(16)      mux_branch(pcplus2, pcbranch, pcsrc, pcnextbr);
     
     // jump mux
-    mux2 #(16)      mux_pc(pcnextbr, {pcplus2[15:14], instr[12:0], 1'b0}, jump, pcnext);
+    
+    mux2 #(16)      mux_pc(pcnextbr, {pcplus2[15:13], instr[12:0]}, jump, pcnext);
     
     // reg write mux
     mux2 #(3)       mux_writereg(instr[9:7], instr[6:4], regdst, writereg);
