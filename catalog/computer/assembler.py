@@ -1,28 +1,31 @@
-# Define opcodes and alu controls
+# define opcodes
 opcodes = {
     'add': '000',
     'sub': '000',
     'and': '000',
     'or': '000',
     'slt': '000',
+    'nor': '000',
     'lw': '001',
     'sw': '010',
     'addi': '011',
     'beq': '100',
-    'stli': '101',
+    'slti': '101',
     'j': '110',
     'jal': '111'
 }
 
+# define alu controls
 alu_controls = {
     'add': '0000',
     'sub': '0001',
     'and': '0010',
     'or': '0011',
-    'slt': '0100'
+    'slt': '0100',
+    'nor': '0101'
 }
 
-# Register name to binary mapping
+# define registers
 register_map = {
     '$zero': '000',
     '$t1': '001',
@@ -34,24 +37,23 @@ register_map = {
     '$ra': '111'
 }
 
-# Convert register name to binary
+# convert register name to binary
 def reg_to_bin(reg):
     if reg in register_map:
         return register_map[reg]
     else:
         raise ValueError(f"Unknown register: {reg}")
 
-# Sign extension and binary formatting
+# sign extension and binary formatting
 def format_binary(value, bits):
-    # Fix for negative values and ensuring we only get the least significant 'bits' bits
     return format((value + (1 << bits)) % (1 << bits), f'0{bits}b')
 
-# Instruction to binary
+# instruction to binary
 def assemble(parts, label_map, current_address):
     inst_type = parts[0].lower()
     opcode = opcodes[inst_type]
 
-    if inst_type in ['add', 'sub', 'and', 'or', 'slt']:
+    if inst_type in ['add', 'sub', 'and', 'or', 'slt', 'nor']:
         rs = reg_to_bin(parts[3].strip(','))
         rt = reg_to_bin(parts[2].strip(','))
         rd = reg_to_bin(parts[1].strip(','))
@@ -66,7 +68,7 @@ def assemble(parts, label_map, current_address):
         immediate_bin = format_binary(immediate, 7)
         return f'{opcode}{rs}{rt}{immediate_bin}'
 
-    elif inst_type in ['addi', 'beq', 'stli']:
+    elif inst_type in ['addi', 'beq', 'slti']:
         rs = reg_to_bin(parts[2].strip(','))
         rt = reg_to_bin(parts[1].strip(','))
         immediate = parts[3]
@@ -89,7 +91,7 @@ def assemble(parts, label_map, current_address):
 
 def process_asm_file(input_file, output_file):
     label_map = {}
-    address = 0  # Instruction address counter
+    address = 0 
 
     try:
         with open(input_file, 'r') as file:
@@ -99,7 +101,7 @@ def process_asm_file(input_file, output_file):
                     label = line[:-1]
                     label_map[label] = address
                 elif not line.startswith('#') and line:
-                    address += 2  # Increment for each instruction
+                    address += 2
 
         with open(input_file, 'r') as file, open(output_file, 'w') as output_file:
             address = 0
@@ -115,7 +117,10 @@ def process_asm_file(input_file, output_file):
     except Exception as e:
         print(f"An error occurred during assembly: {str(e)}")
 
-# Usage example
-input_asm_file = 'asm/fib.asm'
-output_machine_code_file = 'exe/fib_exe'
+# enter input file here
+input_asm_file = 'asm/leaf.asm'
+
+# enter output file here
+output_machine_code_file = 'exe/leaf_exe'
+
 process_asm_file(input_asm_file, output_machine_code_file)
