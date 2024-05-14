@@ -17,7 +17,7 @@
 
 module imem
 // n=bit length of register; r=bit length of addr to limit memory and not crash your verilog emulator
-    #(parameter n = 16, parameter r = 6)(
+    #(parameter n = 32, parameter r = 6)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
@@ -33,7 +33,8 @@ module imem
     begin
       // read memory in hex format from file 
       // $readmemh("program_exe",RAM);
-      $readmemh("mult-prog_exe",RAM);
+      // $readmemh("mult-prog_exe",RAM);
+      $readmemh("fib_seq_exe",RAM);
     end
 
   assign readdata = RAM[addr]; // word aligned
