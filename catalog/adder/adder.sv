@@ -16,7 +16,7 @@
 `timescale 1ns/100ps
 
 module adder
-    #(parameter n = 16)(
+    #(parameter n = 32)(
     //
     // ---------------- PORT DEFINITIONS ----------------
     //
